@@ -1,0 +1,29 @@
+create database gradefairy;
+
+use gradefairy;
+
+create table notice(
+ idx INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ article_idx INT(10) NOT NULL,
+ date DATETIME NOT NULL,
+ title VARCHAR(50) NOT NULL,
+ category INT(10) NOT NULL
+);
+
+create table member(
+ id INT(10) NOT NULL PRIMARY KEY,
+ pw VARCHAR(15) NOT NULL,
+ name VARCHAR(5) NOT NULL,
+ filtering BINARY(10) DEFAULT 1111111111
+);
+
+create table calendar(
+ id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ mem_id INT(10),
+ dateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+ title VARCHAR(30) NOT NULL,
+ content VARCHAR(255),
+ category INT(10) DEFAULT 0,
+ FOREIGN KEY (mem_id) REFERENCES member(id) ON DELETE CASCADE
+);
+
