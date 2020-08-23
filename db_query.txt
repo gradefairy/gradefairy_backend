@@ -3,7 +3,7 @@ create database gradefairy;
 use gradefairy;
 
 create table notice(
- idx INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
  article_idx INT(10) NOT NULL,
  date DATETIME NOT NULL,
  title VARCHAR(50) NOT NULL,
@@ -11,7 +11,7 @@ create table notice(
 );
 
 create table member(
- id INT(10) NOT NULL PRIMARY KEY,
+ id VARCHAR(10) NOT NULL PRIMARY KEY,
  pw VARCHAR(15) NOT NULL,
  name VARCHAR(5) NOT NULL,
  filtering BINARY(10) DEFAULT 1111111111
@@ -27,3 +27,24 @@ create table calendar(
  FOREIGN KEY (mem_id) REFERENCES member(id) ON DELETE CASCADE
 );
 
+INSERT INTO notice(article_idx, date, title, category) VALUES 
+(1, '2017-03-11', '학사 일정 안내', 1), 
+(2, '2017-04-12', '수강 신청 관련', 1),
+(1, '2019-03-11', '기숙사 신청 일정 안내', 2),
+(2, '2019-03-13', '기숙사 입사 일정 관련', 2),
+(3, '2019-03-21', '기숙사 규정 안내', 2),
+(4, '2020-03-24', '기숙사 추가 신청 일정 안내', 2);
+
+INSERT INTO member(id, pw, name, filtering) VALUES 
+('abc', 'abc1234', '홍길동', '1110111100'), 
+('abcd', 'abc1234', '가나다', '1011011010'),
+('abcde', 'abc1234', '라마바', '1111111111'),
+('abcdef', 'abc1234', '사아자', '0001011010');
+
+INSERT INTO calendar(mem_id, dateTime, title, content, category) VALUES 
+('abc', '2020-04-21', '멋사 스터디', '인문대 뒷편 동방', 1), 
+('abc', '2020-05-21', '디논 과제', 'CH3 까지 풀어오기', 2),
+('abc', '2020-05-30', '멋사 스터디', '인문대 뒷편 동방', 1),
+('abcd', '2020-03-22', '알고리즘 시험', '잇빗 502호', 3),
+('abcd', '2020-03-25', '소공 시험', '잇빗 902호', 3),
+('abcd', '2020-04-21', '네프 시험', '잇빗 502호 준비물 공학 계산기', 3);
