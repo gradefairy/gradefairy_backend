@@ -19,7 +19,7 @@ create table member(
 
 create table calendar(
  id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
- mem_id INT(10),
+ mem_id VARCHAR(10),
  dateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
  title VARCHAR(30) NOT NULL,
  content VARCHAR(255),
