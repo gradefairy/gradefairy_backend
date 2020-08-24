@@ -14,7 +14,7 @@ create table member(
  id VARCHAR(10) NOT NULL PRIMARY KEY,
  pw VARCHAR(15) NOT NULL,
  name VARCHAR(5) NOT NULL,
- filtering BINARY(10) DEFAULT 1111111111
+ filtering CHAR(10) DEFAULT 1111111111
 );
 
 create table calendar(
