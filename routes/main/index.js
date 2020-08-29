@@ -1,12 +1,10 @@
 const express = require('express');
-const router = express.Router();
-const mysql = require('mysql');
 const path = require('path');
-const sanitizeHtml = require('sanitize-html');
+const sanitizehtml = require('sanitize-html');
+const router = express.Router();
 
 router.get('/', (req, res) => {
-    res.send('main page');
+    res.send("mainpage");
 });
-
 
 module.exports = router;
