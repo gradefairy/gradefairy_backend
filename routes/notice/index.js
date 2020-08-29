@@ -4,9 +4,9 @@ const mysql = require('mysql');
 const path = require('path');
 const sanitizeHtml = require('sanitize-html');
 
-
 router.get('/', (req, res) => {
-    res.send('hello world!');
+    res.send('notice page');
 });
+
 
 module.exports = router;
