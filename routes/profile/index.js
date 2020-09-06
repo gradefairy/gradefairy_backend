@@ -4,28 +4,10 @@ const router = express.Router();
 const crypto = require('crypto');
 const path = require('path');
 const connection = require('../../dbconnection');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
+const passport = require('../../lib/passport')(router);
 require('dotenv').config();
 const ERROR = 404;
 const SUCCESS = 200;
-
-router.use(session({
-    secret: process.env.SECRET,
-    resave: false,
-    saveUninitialized: true,
-    /*cookie: {
-        httpOnly: true,
-        secure: false
-    }*/
-}));
-
-const passport = require('passport');
-const LocalStorage = require('passport-local').Strategy;
-
-router.use(cookieParser());
-router.use(passport.initialize());
-router.use(passport.session());
 
 connection.getConnection((err, conn) => {
     if(err) console.error(err.message);
@@ -33,56 +15,24 @@ connection.getConnection((err, conn) => {
 
 const base64crypto = password => crypto.createHash('sha512').update(password).digest('base64');
 
-// 로그인 성공시 session storage에 로그인한 정보 저장
-passport.serializeUser((user, done) => {
-    console.log(user.id);
-    done(null, user.id);
-});
-
-// 페이지 방문마다 호출해서 로그인 여부 확인
-passport.deserializeUser((id, done) => {
-    const sql = 'SELECT * FROM `member` WHERE id=?;';
-    connection.query(sql, [id], (err, result) => {
-        if(err) console.log(err.message);
-        console.log("deserializeUser mysql result: " , result);
-        const userinfo = JSON.parse(JSON.stringify(result[0]));
-        done(null, userinfo);
-    });
-});
-
-passport.use(new LocalStorage(
-    {
-        usernameField: 'id',
-        passwordField: 'pw'
-    },
-    (username, password, done) => {
-        console.log('LocalStrategy', username, password);
-        const sql = 'SELECT * FROM `member` WHERE id=? AND `pw`=?;';
-        connection.query(sql, [username, password], (err, result) => { // 나중에 암호화해주기
-            if(err) console.log(err.message);
-            if(result.length === 0) {
-                console.log("no user");
-                return done(null, false, {
-                    'message': 'Incorrect'
-                });
-            } else {
-                console.log(result);
-                const userinfo = JSON.parse(JSON.stringify(result[0]));
-                return done(null, userinfo);
-            }
-        })
-    }
-));
-
 // 로그인
-router.post('/login', passport.authenticate('local', { successRedirect: '/profile/success', failureRedirect: '/profile/login', failureFlash: false }));
+router.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if(err) console.log(err.message);
+        if(!user) return res.send({ 'code': ERROR, 'message': 'not logined'});
+        req.logIn(user, (err) => {
+            if(err) return next(err);
+            return res.redirect('/profile/success');
+        });
+    })(req, res, next);
+});
 
 // 로그인 성공
 router.get('/success', (req, res) => {
     res.sendFile(path.join(__dirname, '/../../html/main.html'));
 })
 
-// 로그인 페이지
+// 로그인 페이지, 나중에 삭제
 router.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, '/../../html/login.html'));
 });
@@ -105,27 +55,6 @@ router.get('/logout', (req, res) => {
     })
     
 });
-
-router.get('/test', (req, res) => {
-    const sql = 'SELECT * FROM `member` WHERE id=?;'
-
-    connection.query(sql, ["abc"], (err, result) => {
-        if(err) {
-            console.log(err.message);
-            res.json({
-                'code': ERROR,
-                'message': err.message
-            })
-        } else {
-            console.log(result);
-            res.json({
-                'code': SUCCESS,
-                'message': '',
-                'data': result
-            })
-        }
-    });
-})
 
 // 현재 로그인한 유저 정보 반환
 router.get('/get', (req, res) => {
