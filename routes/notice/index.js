@@ -1,6 +1,4 @@
 const express = require('express');
-const path = require('path');
-const sanitizehtml = require('sanitize-html');
 const router = express.Router();
 const connection = require('../../dbconnection');
 
@@ -17,7 +15,11 @@ connection.getConnection((err, conn) => {
 // }
 
 router.get('/', (req, res) => {
-    res.send("notice page");
+    console.log(req.user);
+    res.json({
+        'code': 200,
+        'data': req.user
+    })
 });
 
 // user의 filtering에 대한 notice list 반환

@@ -6,6 +6,7 @@ const homeRouter = require('./routes/home');
 const calendarRouter = require('./routes/calendar');
 const profileRouter = require('./routes/profile');
 const noticeRouter = require('./routes/notice');
+const passport = require('./lib/passport')(app);
 const port = 3000;
 
 app.use(express.static(path.join(__dirname, 'static')));; // static폴더 안에 있는 파일들 쓰기 위해
