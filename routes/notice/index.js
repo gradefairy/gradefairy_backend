@@ -1,17 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../../dbconnection');
+const ERROR = 404;
+const SUCCESS = 200;
 
 connection.getConnection((err, conn) => {
     if(err) console.error(err.message);
 });
 
 // const CATEGORY = {
-//     1 : '학사/장학',
-//     2 : '기숙사',
-//     3 : '컴퓨터소프트웨어학부',
-//     4 : '화학공학과',
-//     5 : '건축공학부',
+//     0 : '학사/장학',
+//     1 : '기숙사',
+//     2 : '컴퓨터소프트웨어학부',
+//     3 : '화학공학과',
+//     4 : '건축공학부',
+//     ...
 // }
 
 router.get('/', (req, res) => {
@@ -24,45 +27,75 @@ router.get('/', (req, res) => {
 
 // user의 filtering에 대한 notice list 반환
 router.get('/get', (req, res) => {
-    console.log(req.user);
     const id = req.user.id;
-    console.log(id);
+    const sql = 'SELECT filtering FROM `member` WHERE id=?;';
 
-    connection.query('SELECT filtering FROM `member` WHERE id=?;', [id], (error, rows) => {
-        if (error) throw error;
-        var filtering = rows[0]['filtering'];
+    connection.query(sql, [id], (err, rows) => {
+        if(err) {
+            console.log(err.message);
+            res.json({
+                'code': ERROR,
+                'message': err.message
+            })
+        } else {
+            var filtering = rows[0]['filtering'];
 
-        var q = '';
-        for(i = 0; i < filtering.length; i++){
-            if(filtering[i] == '1') {
-                if(q.length > 0) q += " OR ";
-                q += "category=" + i;
+            var q = '';
+            for(i = 0; i < filtering.length; i++){
+                if(filtering[i] == '1') {
+                    if(q.length > 0) q += " OR ";
+                    q += "category=" + i;
+                }
             }
-        }
 
-        q = "select * from notice where " + q;
-        connection.query(q, (error, rows)=> {
-            if (error) throw error;
-            res.send(rows);
-        });
+            q = "select * from notice where " + q + ";";
+
+            console.log(q);
+            connection.query(q, (err, rows)=> {
+                if (err) {
+                    console.log(err.message);
+                    res.json({
+                        'code': ERROR,
+                        'message': err.message
+                    })
+                } else {
+                    const result = JSON.parse(JSON.stringify(rows));
+                    res.json({
+                        'code' : SUCCESS,
+                        'message': '',
+                        'data' : result
+                    });
+                }
+            });
+        }
     });
 });
 
 // PUT
-router.get('/put/:id', (req, res) => {
-    // 바뀐 filtering 입력받기
-    // var changeFilter = req.body.new_filtering;
+router.put('/put', (req, res) => {
+    const id = req.user.id;
+    // TODO : 바뀐 filtering 입력받기
+    // var changeFilter = req.body.filtering;
     var changeFilter = "0010000000";
-    var q = `update member set filtering='${changeFilter}' where id='${req.params.id}'`;
 
-    connection.query(q, (error, rows) => {
-        if (error) throw error;
-        // console.log(rows);
+    const sql = 'UPDATE `member` SET filtering=? WHERE id=?;';
+    const params = [changeFilter, id];
+
+    connection.query(sql, params, (err, _) => {
+        if (err) {
+            console.log(err.message);
+            res.json({
+                'code': ERROR,
+                'message': err.message
+            })
+        }
+        // else {
+        //     // update 되었는지 확인하기 위해
+        //     connection.query('select * from `member` where id=?', [id], (error, rows) => {
+        //         res.send(rows);
+        //     });
+        // }
         
-        // update 되었는지 확인하기 위해
-        connection.query(`select * from member where id=?`, [req.params.id], (error, rows) => {
-            res.send(rows);
-        });
     });
 });
 
