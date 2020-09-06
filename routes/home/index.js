@@ -1,10 +1,9 @@
 const express = require('express');
-const path = require('path');
-const sanitizehtml = require('sanitize-html');
 const router = express.Router();
+const path = require('path');
 
 router.get('/', (req, res) => {
-    res.send("mainpage");
+    res.sendFile(path.join(__dirname, '/../../html/main.html'));
 });
 
 module.exports = router;

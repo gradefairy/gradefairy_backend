@@ -10,7 +10,6 @@ var nbsp = String.fromCharCode(160);
 
 const getHtml = async (url) => {
     try {
-        // var url = baseURL + "board/info_board.php?ptype=&page=1&code=notice";
         var {data} = await axios({
             url,
             method: "GET",

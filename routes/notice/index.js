@@ -3,7 +3,6 @@ const path = require('path');
 const sanitizehtml = require('sanitize-html');
 const router = express.Router();
 const db = require('../../lib/db.js');
-// const getData = require('./crawling.js');
 
 // const CATEGORY = {
 //     1 : '학사/장학',
