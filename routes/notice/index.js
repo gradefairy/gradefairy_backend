@@ -1,10 +1,12 @@
 const express = require('express');
-const path = require('path');
-const sanitizehtml = require('sanitize-html');
 const router = express.Router();
 
 router.get('/', (req, res) => {
-    res.send("notice pagfe");
+    console.log(req.user);
+    res.json({
+        'code': 200,
+        'data': req.user
+    })
 });
 
 module.exports = router;
