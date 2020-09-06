@@ -2,7 +2,11 @@ const express = require('express');
 const path = require('path');
 const sanitizehtml = require('sanitize-html');
 const router = express.Router();
-const db = require('../../lib/db.js');
+const connection = require('../../dbconnection');
+
+connection.getConnection((err, conn) => {
+    if(err) console.error(err.message);
+});
 
 // const CATEGORY = {
 //     1 : '학사/장학',
@@ -13,11 +17,16 @@ const db = require('../../lib/db.js');
 // }
 
 router.get('/', (req, res) => {
-    res.send("notice pagfe");
+    res.send("notice page");
 });
 
-router.get('/get/:id/', (req, res) => {
-    db.query(`select filtering from member where id=?`, [req.params.id], (error, rows) => {
+// user의 filtering에 대한 notice list 반환
+router.get('/get', (req, res) => {
+    console.log(req.user);
+    const id = req.user.id;
+    console.log(id);
+
+    connection.query('SELECT filtering FROM `member` WHERE id=?;', [id], (error, rows) => {
         if (error) throw error;
         var filtering = rows[0]['filtering'];
 
@@ -30,7 +39,7 @@ router.get('/get/:id/', (req, res) => {
         }
 
         q = "select * from notice where " + q;
-        db.query(q, (error, rows)=> {
+        connection.query(q, (error, rows)=> {
             if (error) throw error;
             res.send(rows);
         });
@@ -44,12 +53,12 @@ router.get('/put/:id', (req, res) => {
     var changeFilter = "0010000000";
     var q = `update member set filtering='${changeFilter}' where id='${req.params.id}'`;
 
-    db.query(q, (error, rows) => {
+    connection.query(q, (error, rows) => {
         if (error) throw error;
         // console.log(rows);
         
         // update 되었는지 확인하기 위해
-        db.query(`select * from member where id=?`, [req.params.id], (error, rows) => {
+        connection.query(`select * from member where id=?`, [req.params.id], (error, rows) => {
             res.send(rows);
         });
     });
