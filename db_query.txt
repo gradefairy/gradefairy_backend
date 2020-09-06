@@ -10,21 +10,21 @@ create table notice(
  category INT(10) NOT NULL
 );
 
-create table member(
+create table `member`(
  id VARCHAR(10) NOT NULL PRIMARY KEY,
- pw VARCHAR(15) NOT NULL,
+ `pw` VARCHAR(15) NOT NULL,
  name VARCHAR(5) NOT NULL,
  filtering CHAR(10) DEFAULT 1111111111
 );
 
-create table calendar(
+create table `calendar`(
  id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
  mem_id VARCHAR(10),
  dateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
  title VARCHAR(30) NOT NULL,
  content VARCHAR(255),
  category INT(10) DEFAULT 0,
- FOREIGN KEY (mem_id) REFERENCES member(id) ON DELETE CASCADE
+ FOREIGN KEY (mem_id) REFERENCES `member`(id) ON DELETE CASCADE
 );
 
 INSERT INTO notice(article_idx, date, title, category) VALUES 
@@ -35,7 +35,7 @@ INSERT INTO notice(article_idx, date, title, category) VALUES
 (3, '2019-03-21', '기숙사 규정 안내', 2),
 (4, '2020-03-24', '기숙사 추가 신청 일정 안내', 2);
 
-INSERT INTO member(id, pw, name, filtering) VALUES 
+INSERT INTO `member`(id, pw, name, filtering) VALUES 
 ('abc', 'abc1234', '홍길동', '1110111100'), 
 ('abcd', 'abc1234', '가나다', '1011011010'),
 ('abcde', 'abc1234', '라마바', '1111111111'),
