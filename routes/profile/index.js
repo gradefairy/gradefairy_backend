@@ -13,11 +13,11 @@ const SUCCESS = 200;
 router.use(session({
     secret: process.env.SECRET,
     resave: false,
-    saveUninitialized: false,
-    cookie: {
+    saveUninitialized: true,
+    /*cookie: {
         httpOnly: true,
         secure: false
-    }
+    }*/
 }));
 
 const passport = require('passport');
@@ -58,7 +58,7 @@ passport.use(new LocalStorage(
     (username, password, done) => {
         console.log('LocalStrategy', username, password);
         const sql = 'SELECT * FROM `member` WHERE id=? AND `pw`=?;';
-        connection.query(sql, [username, base64crypto(password)], (err, result) => {
+        connection.query(sql, [username, password], (err, result) => { // 나중에 암호화해주기
             if(err) console.log(err.message);
             if(result.length === 0) {
                 console.log("no user");
@@ -75,10 +75,7 @@ passport.use(new LocalStorage(
 ));
 
 // 로그인
-router.post('/login', (req, res) => {
-    console.log(req.body);
-    passport.authenticate('local', { successRedirect: '/profile/success', failureRedirect: '/profile/login', failureFlash: false});
-});
+router.post('/login', passport.authenticate('local', { successRedirect: '/profile/success', failureRedirect: '/profile/login', failureFlash: false }));
 
 // 로그인 성공
 router.get('/success', (req, res) => {
@@ -110,7 +107,7 @@ router.get('/logout', (req, res) => {
 });
 
 router.get('/test', (req, res) => {
-    const sql = 'SELECT * FROM `member` where id=?;'
+    const sql = 'SELECT * FROM `member` WHERE id=?;'
 
     connection.query(sql, ["abc"], (err, result) => {
         if(err) {
