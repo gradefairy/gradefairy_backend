@@ -59,7 +59,7 @@ router.get('/logout', (req, res) => {
 // 현재 로그인한 유저 정보 반환
 router.get('/get', (req, res) => {
     const id = req.user.id;
-    const sql = 'SELECT * FROM `member` WHERE id=?;'
+    const sql = 'SELECT * FROM `member` WHERE id=?;';
 
     connection.query(sql, [id], (err, result) => {
         if(err) {
@@ -67,7 +67,7 @@ router.get('/get', (req, res) => {
             res.json({
                 'code': ERROR,
                 'message': err.message
-            })
+            });
         } else {
             console.log(result);
             const userinfo = JSON.parse(JSON.stringify(result[0]));
@@ -93,7 +93,6 @@ router.delete('/delete', (req, res) => {
                 'message': err.message
             })
         } else {
-            console.log(_);
             res.json({
                 'code': SUCCESS,
                 'message': ''
@@ -117,13 +116,18 @@ router.put('/put', (req, res) => {
                 'code': ERROR,
                 'message': err.message
             })
+        } else {
+            res.json({
+                'code': SUCCESS,
+                'message': ''
+            })
         }
-    })
+    });
 });
 
 // 회원가입 정보 받아서 회원가입
 router.post('/post', (req, res) => {
-    const id = sanitizehtml(req.body.id);
+    const id = req.body.id;
     const pw = base64crypto(sanitizehtml(req.body.pw));
     const name = sanitizehtml(req.body.name);
     const filtering = req.body.filtering;
