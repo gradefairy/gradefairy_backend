@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../../dbconnection');
+const crawling = require('./crawling.js');
+const { noticeList } = require('./crawling.js');
 const ERROR = 404;
 const SUCCESS = 200;
 
@@ -99,12 +101,38 @@ router.put('/put', (req, res) => {
     });
 });
 
-// get notices
-router.get('/reset/notices', async (req, res) => {
-    const getData = await require('./crawling.js');
-    console.log("done");
-    // console.log(getData);
-    res.send(getData);
+// put new notices list
+router.get('/put/reset/notices', async (req, res) => {
+    var ntList = await crawling.noticeList();
+
+    // 이전 데이터 삭제
+    await connection.query('DELETE FROM notice;', (err, _) => {
+        if (err) {
+            console.log(err.message);
+            res.json({
+                'code': ERROR,
+                'message': err.message
+            })
+        }
+    });
+
+    // 새로운 데이터 넣기
+    const query = 'INSERT INTO notice(article_idx, date, title, category, url) VALUES '
+    var insert = "";
+    for(var i=0; i<ntList.length; i++){
+        insert += `(${ntList[i].article_idx}, "${ntList[i].date}", "${ntList[i].title}", ${ntList[i].category}, "${ntList[i].url}")`;
+        if(i >= 0 && i < ntList.length-1) insert += ", ";
+    }
+
+    connection.query(query+insert, (err, _) => {
+        if (err) {
+            console.log(err.message);
+            res.json({
+                'code': ERROR,
+                'message': err.message
+            })
+        }
+    });
 });
 
 module.exports = router;
