@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const connection = require('../../dbconnection');
+const crawling = require('./crawling.js');
+const { noticeList } = require('./crawling.js');
 const ERROR = 404;
 const SUCCESS = 200;
 
@@ -16,6 +18,12 @@ connection.getConnection((err, conn) => {
 //     4 : '건축공학부',
 //     ...
 // }
+const CATEGORY = {
+    2 : {
+        'name' : '컴퓨터소프트웨어학부',
+        'baseURL' : 'http://cs.hanyang.ac.kr/'
+    },
+};
 
 router.get('/', (req, res) => {
     console.log(req.user);
@@ -99,12 +107,71 @@ router.put('/put', (req, res) => {
     });
 });
 
-// get notices
-router.get('/reset/notices', async (req, res) => {
-    const getData = await require('./crawling.js');
-    console.log("done");
-    // console.log(getData);
-    res.send(getData);
+// put new notices list
+router.get('/put/reset/notices', async (req, res) => {
+    var ntList = await crawling.noticeList();
+
+    // 이전 데이터 삭제
+    await connection.query('DELETE FROM notice;', (err, _) => {
+        if (err) {
+            console.log(err.message);
+            res.json({
+                'code': ERROR,
+                'message': err.message
+            })
+        }
+    });
+
+    // 새로운 데이터 넣기
+    const query = 'INSERT INTO notice(article_idx, date, title, category, url) VALUES '
+    var insert = "";
+    for(var i=0; i<ntList.length; i++){
+        insert += `(${ntList[i].article_idx}, "${ntList[i].date}", "${ntList[i].title}", ${ntList[i].category}, "${ntList[i].url}")`;
+        if(i >= 0 && i < ntList.length-1) insert += ", ";
+    }
+
+    connection.query(query+insert, (err, _) => {
+        if (err) {
+            console.log(err.message);
+            res.json({
+                'code': ERROR,
+                'message': err.message
+            })
+        }
+    });
+});
+
+// 해당 notice의 detail 가져오기
+router.get('/get/:noticeId', (req,res) => {
+    const query = 'SELECT category, url FROM notice WHERE id=?';
+    const params = [req.params.noticeId];
+
+    connection.query(query, params, async (err, rows) => {
+        if (err) {
+            console.log(err.message);
+            res.json({
+                'code': ERROR,
+                'message': err.message
+            });
+        }
+        else {
+            // console.log(typeof rows[0]['url']);
+            // console.log(rows[0]['category']);
+
+            var url = rows[0]['url'];
+            var category = rows[0]['category'];
+            var baseURL = CATEGORY[category]['baseURL'];
+
+            var result = await crawling.noticeDetail(url, baseURL);
+            result = JSON.parse(JSON.stringify(result));
+            // console.log(result);
+            res.json({
+                'code' : SUCCESS,
+                'message': '',
+                'data' : result
+            });
+        }
+    });
 });
 
 module.exports = router;
