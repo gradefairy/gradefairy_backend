@@ -3,8 +3,8 @@ const router = express.Router();
 const connection = require('../../dbconnection');
 const crawling = require('./crawling.js');
 const { noticeList } = require('./crawling.js');
-const ERROR = 404;
-const SUCCESS = 200;
+const ERROR = false;
+const SUCCESS = true;
 
 connection.getConnection((err, conn) => {
     if(err) console.error(err.message);
@@ -18,6 +18,7 @@ connection.getConnection((err, conn) => {
 //     4 : '건축공학부',
 //     ...
 // }
+
 const CATEGORY = {
     2 : {
         'name' : '컴퓨터소프트웨어학부',
@@ -79,36 +80,36 @@ router.get('/get', (req, res) => {
     });
 });
 
-// PUT
-router.put('/put', (req, res) => {
-    const id = req.user.id;
-    // TODO : 바뀐 filtering 입력받기
-    // var changeFilter = req.body.filtering;
-    var changeFilter = "0010000000";
+// // PUT
+// router.put('/put', (req, res) => {
+//     const id = req.user.id;
+//     // TODO : 바뀐 filtering 입력받기
+//     // var changeFilter = req.body.filtering;
+//     var changeFilter = "0010000000";
 
-    const sql = 'UPDATE `member` SET filtering=? WHERE id=?;';
-    const params = [changeFilter, id];
+//     const sql = 'UPDATE `member` SET filtering=? WHERE id=?;';
+//     const params = [changeFilter, id];
 
-    connection.query(sql, params, (err, _) => {
-        if (err) {
-            console.log(err.message);
-            res.json({
-                'code': ERROR,
-                'message': err.message
-            })
-        }
-        // else {
-        //     // update 되었는지 확인하기 위해
-        //     connection.query('select * from `member` where id=?', [id], (error, rows) => {
-        //         res.send(rows);
-        //     });
-        // }
+//     connection.query(sql, params, (err, _) => {
+//         if (err) {
+//             console.log(err.message);
+//             res.json({
+//                 'code': ERROR,
+//                 'message': err.message
+//             })
+//         }
+//         // else {
+//         //     // update 되었는지 확인하기 위해
+//         //     connection.query('select * from `member` where id=?', [id], (error, rows) => {
+//         //         res.send(rows);
+//         //     });
+//         // }
         
-    });
-});
+//     });
+// });
 
 // put new notices list
-router.get('/put/reset/notices', async (req, res) => {
+router.put('/put/reset/notices', async (req, res) => {
     var ntList = await crawling.noticeList();
 
     // 이전 데이터 삭제
@@ -123,7 +124,7 @@ router.get('/put/reset/notices', async (req, res) => {
     });
 
     // 새로운 데이터 넣기
-    const query = 'INSERT INTO notice(article_idx, date, title, category, url) VALUES '
+    const query = 'INSERT INTO notice(article_idx, date, title, category, url) VALUES ';
     var insert = "";
     for(var i=0; i<ntList.length; i++){
         insert += `(${ntList[i].article_idx}, "${ntList[i].date}", "${ntList[i].title}", ${ntList[i].category}, "${ntList[i].url}")`;
@@ -162,12 +163,26 @@ router.get('/get/:noticeId', (req,res) => {
             var category = rows[0]['category'];
             var baseURL = CATEGORY[category]['baseURL'];
 
+            // board로 이어지는 링크가 아닐 경우
+            // not_board = true && url 보냄.
+            if(url.split("/")[1] != "board"){
+                console.log(url.split("/"));
+                res.json({
+                    'code' : SUCCESS,
+                    'message': '',
+                    'not_board' : true,
+                    'data' : url
+                });
+                return;
+            }
+
             var result = await crawling.noticeDetail(url, baseURL);
             result = JSON.parse(JSON.stringify(result));
             // console.log(result);
             res.json({
                 'code' : SUCCESS,
                 'message': '',
+                'not_board' : false,
                 'data' : result
             });
         }
