@@ -119,9 +119,10 @@ const getContents = async (url, base) => {
         }
 
 
-        var view_content = '';
+        var view_content = [];
         for(j = start_idx; j < $ct.length; j++){
-            view_content += $($ct[j]).text();
+            // view_content += $($ct[j]).text();
+            view_content.push($($ct[j]).text());
         }
         // console.log(view_content);
 
