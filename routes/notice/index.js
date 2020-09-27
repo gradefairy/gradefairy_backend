@@ -36,7 +36,8 @@ router.get('/', (req, res) => {
 
 // user의 filtering에 대한 notice list 반환
 router.get('/get', (req, res) => {
-    const id = req.user.id;
+    // const id = req.user.id;
+    const id = "abc";
     const sql = 'SELECT filtering FROM `member` WHERE id=?;';
 
     connection.query(sql, [id], (err, rows) => {
