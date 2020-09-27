@@ -1,3 +1,4 @@
+const cors = require("cors");
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -9,6 +10,7 @@ const noticeRouter = require('./routes/notice');
 const passport = require('./lib/passport')(app);
 const port = 3000;
 
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'static')));; // static폴더 안에 있는 파일들 쓰기 위해
 app.use(bodyParser.urlencoded({ extended: false})); // bodyParser 쓰려고 적어주는거
 
