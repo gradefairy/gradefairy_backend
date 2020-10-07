@@ -5,7 +5,7 @@ use gradefairy;
 create table notice(
  id INT(10) NOT NULL AUTO_INCREMENT PRIMARY KEY,
  article_idx INT(10) NOT NULL,
- date DATETIME NOT NULL,
+ wdate DATETIME NOT NULL,
  title VARCHAR(50) NOT NULL,
  category INT(10) NOT NULL
 );

@@ -125,7 +125,7 @@ router.put('/put/reset/notices', async (req, res) => {
     });
 
     // 새로운 데이터 넣기
-    const query = 'INSERT INTO notice(article_idx, date, title, category, url) VALUES ';
+    const query = 'INSERT INTO notice(article_idx, wdate, title, category, url) VALUES ';
     var insert = "";
     for(var i=0; i<ntList.length; i++){
         insert += `(${ntList[i].article_idx}, "${ntList[i].date}", "${ntList[i].title}", ${ntList[i].category}, "${ntList[i].url}")`;
@@ -138,10 +138,14 @@ router.put('/put/reset/notices', async (req, res) => {
             res.json({
                 'code': ERROR,
                 'message': err.message
-            })
+            });
         }
         // else {
-        //     console.log("done crawling new notice list")
+        //     console.log("done crawling new notice list");
+        //     res.json({
+        //         'code': SUCCESS,
+        //         'message': ""
+        //     });
         // }
     });
 });
