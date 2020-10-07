@@ -106,25 +106,37 @@ const getContents = async (url, base) => {
         // console.log(wri, dt);
 
 
-        var $ct = $($bodyList[2]).find("td.view_content").children();
-        // get attatched_text & attatched_url
-        var att_title = '';
-        var att_url = '';
-        var start_idx = 0;
-        if($($ct[0]).is("div.upfile")) {
-            att_title = $($ct[0]).find("a").text();
-            att_url = $($ct[0]).find("a").attr("href");
-            start_idx = 1;
-            // console.log(att_title, att_url);
-        }
-
-
         var view_content = [];
-        for(j = start_idx; j < $ct.length; j++){
-            // view_content += $($ct[j]).text();
-            view_content.push($($ct[j]).text());
-        }
-        // console.log(view_content);
+        var att_title = [];
+        var att_url = [];
+        var $ct = $($bodyList[2]).find("td.view_content").children();
+
+        $ct.each(function(i, elem) {
+            if($(this).is("div.upfile")) {
+                $(this).contents().each(function(j, ele) {
+                    if($(this).is("a")){
+                        att_title.push($(this).text());
+                        att_url.push($(this).attr('href'));
+                    }
+                });
+                // console.log(att_title, att_url);
+            }
+            else {
+                var $tmp = $(this).children();
+                while($tmp.length != 0) {
+                    $tmp.each(function(j, ele) {
+                        var cnt = "";
+                        if($(this).is("img")) { cnt = $(this).attr('src'); }
+                        else { cnt = $(this).text(); }
+
+                        if(cnt.length > 0) {
+                            view_content.push(cnt);
+                        }
+                    });
+                    $tmp = $($tmp).children();
+                }
+            }
+        });
 
         result = {
                         title : $($bodyList[0]).find("th").text(),
@@ -138,10 +150,6 @@ const getContents = async (url, base) => {
     });
     return result;
 };
-
-// Issue
-// 1. 채용 공고 같은 경우 detailPage가 아닌 원문 링크로 이동하는 경우.
-// 2. 공고 content에 image가 있는 경우.
 
 module.exports = {
     noticeList : function() {

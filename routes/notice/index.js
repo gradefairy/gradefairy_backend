@@ -3,8 +3,8 @@ const router = express.Router();
 const connection = require('../../dbconnection');
 const crawling = require('./crawling.js');
 const { noticeList } = require('./crawling.js');
-const ERROR = false;
-const SUCCESS = true;
+const ERROR = 404;
+const SUCCESS = 200;
 
 connection.getConnection((err, conn) => {
     if(err) console.error(err.message);
@@ -140,6 +140,9 @@ router.put('/put/reset/notices', async (req, res) => {
                 'message': err.message
             })
         }
+        // else {
+        //     console.log("done crawling new notice list")
+        // }
     });
 });
 
@@ -167,7 +170,7 @@ router.get('/get/:noticeId', (req,res) => {
             // board로 이어지는 링크가 아닐 경우
             // not_board = true && url 보냄.
             if(url.split("/")[1] != "board"){
-                console.log(url.split("/"));
+                url = JSON.parse(JSON.stringify(url));
                 res.json({
                     'code' : SUCCESS,
                     'message': '',
