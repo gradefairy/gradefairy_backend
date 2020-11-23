@@ -11,9 +11,11 @@ connection.getConnection((err, conn) => {
 
 // 현재 로그인한 사용자의 기간 내 캘린더 리스트 반환
 router.get("/get/:startdate/:enddate", (req, res) => {
-    const id = req.user.id;
+    // const id = req.user.id;
+    const id = req.query.id;
     const startdate = req.params.startdate;
-    const enddate = req.parans.enddate;
+    const enddate = req.params.enddate;
+
     const sql = "SELECT * FROM calendar WHERE mem_id=? AND dateTime BETWEEN ? AND ?;";
     const params = [id, startdate, enddate];
 
@@ -25,8 +27,7 @@ router.get("/get/:startdate/:enddate", (req, res) => {
                 message: err.message
             });
         } else {
-            console.log(result);
-            const calendar = JSON.parse(JSON.stringify(result[0]));
+            const calendar = JSON.parse(JSON.stringify(result));
             res.json({
                 code: SUCCESS,
                 message: "",
